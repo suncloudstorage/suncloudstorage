@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
 
+import static com.suncloudstorage.constant.JwtConstants.BEARER_PREFIX;
+
 @Component
 public class JwtTokenProvider {
 
@@ -65,10 +67,18 @@ public class JwtTokenProvider {
     }
 
     public String getUsername(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     public String resolveToken(HttpServletRequest request) {
-        return request.getHeader(authorizationHeader);
+        String header = request.getHeader(authorizationHeader);
+        if (header != null && header.startsWith(BEARER_PREFIX)) {
+            return header.substring(BEARER_PREFIX.length());
+        }
+        return null;
     }
 }
