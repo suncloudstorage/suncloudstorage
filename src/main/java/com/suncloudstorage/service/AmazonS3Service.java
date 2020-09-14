@@ -67,7 +67,4 @@ public class AmazonS3Service {
         return s3client.listObjects(bucketName);
     }
 
-    public void createBucketIfNotExist(String bucketName) {
-        s3client.createBucket(bucketName);
-    }
 }

@@ -3,16 +3,16 @@ package com.suncloudstorage.dto;
 import com.suncloudstorage.model.Role;
 import com.suncloudstorage.model.Status;
 import com.suncloudstorage.model.User;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserDTO {
     private Long id;
     private String username;
     private String email;
-    private String password;
     private String firstName;
     private String lastName;
     private Role role;

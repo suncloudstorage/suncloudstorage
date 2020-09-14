@@ -1,7 +1,9 @@
 package com.suncloudstorage.rest;
 
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.suncloudstorage.dto.FileDTO;
 import com.suncloudstorage.service.AmazonS3Service;
 import com.suncloudstorage.service.EncryptService;
 import org.springframework.core.io.ByteArrayResource;
@@ -12,6 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -59,13 +64,20 @@ public class BucketController {
         String contentType = fileFroms3bucket.getObjectMetadata().getContentType();
 
 
-
         ByteArrayResource resource = new ByteArrayResource(decryptedFile);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header("Content-Disposition", "attachment; filename=" + fileFroms3bucket.getKey())
-                .header("hello", "qwerty")
                 .body(resource);
+    }
+
+    @GetMapping("/files")
+    public ResponseEntity<List<FileDTO>> getFilesByBucket(Principal principal) {
+        ObjectListing allFiles = this.amazonS3Service.getAllFiles(principal.getName());
+        List<FileDTO> files = allFiles.getObjectSummaries().stream()
+                .map(FileDTO::fromS3Object)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(files);
     }
 }
