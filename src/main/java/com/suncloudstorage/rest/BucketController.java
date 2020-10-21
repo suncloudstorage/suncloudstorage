@@ -45,7 +45,7 @@ public class BucketController {
     }
 
     @DeleteMapping("/deleteFile")
-    public ResponseEntity<?> deleteFile(@RequestPart(value = "url") String fileUrl, Principal principal) {
+    public ResponseEntity<?> deleteFile(@RequestParam(value = "url") String fileUrl, Principal principal) {
         this.amazonS3Service.deleteFileFromS3Bucket(principal.getName(), fileUrl);
         return ResponseEntity.noContent().build();
     }
