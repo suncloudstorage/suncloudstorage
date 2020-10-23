@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin
 public class AuthenticationRestControllerV1 {
 
     private final AuthenticationManager authenticationManager;
