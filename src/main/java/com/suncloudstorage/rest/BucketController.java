@@ -1,11 +1,14 @@
 package com.suncloudstorage.rest;
 
+import com.amazonaws.services.s3.model.CopyObjectResult;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.suncloudstorage.dto.EditFileDTO;
 import com.suncloudstorage.dto.FileDTO;
 import com.suncloudstorage.service.AmazonS3Service;
 import com.suncloudstorage.service.EncryptService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,8 +25,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/storage")
 public class BucketController {
 
-    private final AmazonS3Service amazonS3Service;
+    @Value("${encrypt.files}")
+    private boolean encryptFiles;
 
+    private final AmazonS3Service amazonS3Service;
     private final EncryptService encryptService;
 
     BucketController(AmazonS3Service amazonS3Service, EncryptService encryptService) {
@@ -33,15 +37,21 @@ public class BucketController {
     }
 
     @PostMapping("/uploadFile")
-    public ResponseEntity<?> uploadFile(@RequestPart(value = "file") MultipartFile file, Principal principal) throws IOException {
-//        amazonS3Service.createBucketIfNotExist(principal.getName());
-        byte[] bytes = encryptService.encryptFile(file);
+    public ResponseEntity<?> uploadFile(@RequestPart(value = "file") MultipartFile file,
+                                        Principal principal) throws IOException {
+        byte[] bytes;
+        if (encryptFiles) {
+            bytes = encryptService.encryptFile(file);
+        } else {
+            bytes = file.getBytes();
+        }
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());
         objectMetadata.setContentLength(file.getSize());
 
-        String url = this.amazonS3Service.uploadFileTos3bucket(principal.getName(), file.getOriginalFilename(), bytes, objectMetadata);
+        String url = this.amazonS3Service.uploadFileToS3Bucket(principal.getName(),
+                file.getOriginalFilename(), bytes, objectMetadata);
         return ResponseEntity.ok().body(url);
     }
 
@@ -58,14 +68,18 @@ public class BucketController {
     }
 
     @GetMapping("/downloadFile")
-    public ResponseEntity<ByteArrayResource> getFile(@RequestParam(value = "url") String fileName, Principal principal) throws IOException {
-        S3Object fileFroms3bucket = this.amazonS3Service.downloadFileFroms3bucket(principal.getName(), fileName);
-        byte[] decryptedFile = encryptService.decryptFile(fileFroms3bucket);
+    public ResponseEntity<ByteArrayResource> getFile(@RequestParam(value = "url") String fileName,
+                                                     Principal principal) throws IOException {
+        S3Object fileFroms3bucket = this.amazonS3Service.downloadFileFromS3Bucket(principal.getName(), fileName);
+        byte[] bytes;
+        if (encryptFiles) {
+            bytes = encryptService.decryptFile(fileFroms3bucket);
+        } else {
+            bytes = fileFroms3bucket.getObjectContent().readAllBytes();
+        }
 
         String contentType = fileFroms3bucket.getObjectMetadata().getContentType();
-
-
-        ByteArrayResource resource = new ByteArrayResource(decryptedFile);
+        ByteArrayResource resource = new ByteArrayResource(bytes);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
@@ -81,4 +95,11 @@ public class BucketController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(files);
     }
+
+    @PostMapping("/editFileName")
+    public ResponseEntity<CopyObjectResult> editFileName(@RequestBody EditFileDTO editFileDTO, Principal principal) {
+        CopyObjectResult copyObjectResult = this.amazonS3Service.editFileName(editFileDTO, principal.getName());
+        return ResponseEntity.ok().body(copyObjectResult);
+    }
+
 }

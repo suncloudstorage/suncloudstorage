@@ -1,12 +1,12 @@
 package com.suncloudstorage.dto;
 
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.suncloudstorage.util.DateUtils;
+import com.suncloudstorage.util.FileUtils;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Data
 @Builder
@@ -20,10 +20,9 @@ public class FileDTO {
     public static FileDTO fromS3Object(S3ObjectSummary objectSummary) {
         return FileDTO.builder()
                 .bucketName(objectSummary.getBucketName())
-                .name(objectSummary.getKey().substring(0, objectSummary.getKey().lastIndexOf(".")))
-                .extension(objectSummary.getKey().substring(objectSummary.getKey().lastIndexOf(".") + 1))
-                .lastModified(LocalDateTime.ofInstant(
-                        objectSummary.getLastModified().toInstant(), ZoneId.systemDefault()))
+                .name(FileUtils.getExtension(objectSummary.getKey()))
+                .extension(FileUtils.getFileNameWithoutExtension(objectSummary.getKey()))
+                .lastModified(DateUtils.dateToLocalDateTime(objectSummary.getLastModified()))
                 .size(objectSummary.getSize())
                 .build();
     }

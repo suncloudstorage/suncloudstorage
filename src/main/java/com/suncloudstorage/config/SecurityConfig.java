@@ -1,6 +1,7 @@
 package com.suncloudstorage.config;
 
 import com.suncloudstorage.security.JwtConfigurer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +20,16 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.Collections;
 
+import static com.suncloudstorage.constant.SecurityConstants.ALLOW_ALL_PATH;
+import static com.suncloudstorage.constant.SecurityConstants.ALLOW_ALL_VALUE;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Value("${client.url}")
+    private String clientUrl;
 
     private final JwtConfigurer jwtConfigurer;
 
@@ -39,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/healthcheck").permitAll()
-                .antMatchers("/api/v1/auth/login").permitAll()
+                .antMatchers("/api/auth/login").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -58,17 +65,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public FilterRegistrationBean simpleCorsFilter() {
+    public FilterRegistrationBean<?> simpleCorsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        // *** URL below needs to match the Vue client URL and port ***
-        config.setAllowedOrigins(Collections.singletonList("*"));
-        config.setAllowedMethods(Collections.singletonList("*"));
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        source.registerCorsConfiguration("/**", config);
-        FilterRegistrationBean bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        config.setAllowedOrigins(Collections.singletonList(clientUrl));
+        config.setAllowedMethods(Collections.singletonList(ALLOW_ALL_VALUE));
+        config.setAllowedHeaders(Collections.singletonList(ALLOW_ALL_VALUE));
+        source.registerCorsConfiguration(ALLOW_ALL_PATH, config);
+        FilterRegistrationBean<?> bean = new FilterRegistrationBean<>(new CorsFilter(source));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+
         return bean;
     }
 }

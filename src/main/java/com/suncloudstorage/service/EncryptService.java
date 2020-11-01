@@ -37,8 +37,10 @@ public class EncryptService {
     public byte[] decryptFile(S3Object fileFroms3bucket) throws IOException {
         byte[] bytes = fileFroms3bucket.getObjectContent().readAllBytes();
 
-        ResponseEntity<HttpEntity<byte[]>> decryptedFile =
-                restTemplate.exchange(encryptorUrl + "/decrypt", HttpMethod.POST, new HttpEntity<>(bytes), HTTP_ENTITY_PARAMETERIZED_TYPE_REFERENCE);
+        ResponseEntity<HttpEntity<byte[]>> decryptedFile = restTemplate.exchange(encryptorUrl + "/decrypt",
+                        HttpMethod.POST,
+                        new HttpEntity<>(bytes),
+                        HTTP_ENTITY_PARAMETERIZED_TYPE_REFERENCE);
 
         return getBytesFromHttpEntity(decryptedFile);
     }

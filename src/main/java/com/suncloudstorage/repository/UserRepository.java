@@ -1,6 +1,5 @@
 package com.suncloudstorage.repository;
 
-
 import com.suncloudstorage.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

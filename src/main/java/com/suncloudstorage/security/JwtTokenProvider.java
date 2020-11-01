@@ -16,6 +16,8 @@ import java.util.Base64;
 import java.util.Date;
 
 import static com.suncloudstorage.constant.JwtConstants.BEARER_PREFIX;
+import static com.suncloudstorage.constant.JwtConstants.Role;
+import static com.suncloudstorage.constant.StringConstants.EMPTY;
 
 @Component
 public class JwtTokenProvider {
@@ -40,7 +42,7 @@ public class JwtTokenProvider {
 
     public String createToken(String username, String role) {
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("role", role);
+        claims.put(Role, role);
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds * 1000);
 
@@ -63,7 +65,7 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, EMPTY, userDetails.getAuthorities());
     }
 
     public String getUsername(String token) {
