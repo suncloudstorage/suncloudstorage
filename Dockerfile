@@ -1,6 +1,6 @@
 FROM adoptopenjdk/openjdk11
 
-EXPOSE 8080
+EXPOSE 9100
 VOLUME /tmp
 COPY target/*.jar app.jar
 COPY suncloudstorage.properties suncloudstorage.properties
