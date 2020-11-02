@@ -11,6 +11,11 @@ pipeline {
         timestamps()
     }
     stages {
+        stage("See directories") {
+            steps {
+                sh 'ls -l'
+            }
+        }
         stage("Change directory") {
             steps {
                 sh 'cd projects/suncloudstorage'
