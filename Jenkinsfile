@@ -13,12 +13,7 @@ pipeline {
     stages {
         stage("Change directory") {
             steps {
-                sh 'cs projects/suncloudstorage'
-            }
-        }
-        stage("Pull last changes") {
-            steps {
-                sh 'git pull'
+                sh 'cd projects/suncloudstorage'
             }
         }
         stage("Pull last changes") {
