@@ -14,8 +14,9 @@ pipeline {
     stages {
         stage("create docker image") {
             steps {
-                sh 'cat suncloudstorage.properties'
                 sh 'ls -l'
+                sh 'cd #'
+                sh 'cat suncloudstorage.properties'
                 echo " ============== start building image =================="
                 sh 'docker build -t suncloudstorage/suncloudstorage . '
             }
