@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage("create docker image") {
             steps {
-                readFile '$OVERRIDE_PROPERTIES'
+                sh 'cat suncloudstorage.properties'
                 sh 'ls -l'
                 echo " ============== start building image =================="
                 sh 'docker build -t suncloudstorage/suncloudstorage . '
