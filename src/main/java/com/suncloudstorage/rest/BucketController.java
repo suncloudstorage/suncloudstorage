@@ -48,7 +48,6 @@ public class BucketController {
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(file.getContentType());
-        objectMetadata.setContentLength(file.getSize());
 
         String url = this.amazonS3Service.uploadFileToS3Bucket(principal.getName(),
                 file.getOriginalFilename(), bytes, objectMetadata);
