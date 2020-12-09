@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class UserDTO {
-    private Long id;
+    private String id;
     private String username;
     private String email;
     private String firstName;
