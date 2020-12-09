@@ -14,7 +14,7 @@ public class HealthCheckController {
     @GetMapping("/healthcheck")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok().body("SunCloudStorage is running" +
-                ("override".equalsIgnoreCase(appType) ? "with override properties" : ""));
+                ("override".equalsIgnoreCase(appType) ? " with override properties" : ""));
     }
 
 }
