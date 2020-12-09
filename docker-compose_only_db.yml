@@ -2,15 +2,9 @@ version: '2.1'
 
 services:
 
-  db:
-    container_name: suncloudstorage
-    image: mysql
-    ports:
-      - "3306:3306"
+  mongo:
+    image: mongo
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: suncloudstorage
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
